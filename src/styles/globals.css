@@ -1,0 +1,6 @@
+@import "tailwindcss";
+
+@theme {
+    --color-gold: #c9a84c;
+    --font-display: 'Syne', sans-serif;
+}

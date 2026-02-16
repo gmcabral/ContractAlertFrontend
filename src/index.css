@@ -1,0 +1,95 @@
+/* src/index.css */
+
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+@theme {
+  --color-ink: #0d0d0f;
+  --color-ink-light: #3a3a42;
+  --color-ink-muted: #8a8a96;
+  --color-paper: #faf9f7;
+  --color-paper-off: #f2f0ec;
+  --color-border: #e2dfd8;
+
+  --color-gold: #c9a84c;
+  --color-gold-light: #f0d98a;
+  --color-gold-dark: #9a7a2e;
+
+  --color-danger: #c0392b;
+  --color-danger-bg: #fdf2f1;
+  --color-success: #1a7a4a;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+body {
+  background-color: #0d0d0f;
+  color: #faf9f7;
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Animaciones que no se pueden hacer solo con clases Tailwind */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shakeIn {
+  0% {
+    transform: translateX(-6px);
+    opacity: 0;
+  }
+
+  50% {
+    transform: translateX(3px);
+  }
+
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-fade-slide-up {
+  animation: fadeSlideUp 0.4s ease forwards;
+}
+
+.animate-shake-in {
+  animation: shakeIn 0.3s ease;
+}
+
+.animate-spin-slow {
+  animation: spin 0.7s linear infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
