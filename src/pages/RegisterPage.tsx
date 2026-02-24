@@ -1,17 +1,8 @@
-import { useState, type FormEvent } from 'react'
+import { useEffect, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
-
-const INDUSTRIES = [
-    { value: '', label: 'Seleccioná tu industria (opcional)' },
-    { value: 'desarrollo', label: '💻 Desarrollo de software' },
-    { value: 'diseño', label: '🎨 Diseño y creatividad' },
-    { value: 'consultoria', label: '📊 Consultoría' },
-    { value: 'marketing', label: '📣 Marketing y comunicación' },
-    { value: 'redaccion', label: '✍️ Redacción y contenidos' },
-    { value: 'otro', label: '🔧 Otro' },
-]
+import { logEvent } from "../utils/analytics";
 
 const BENEFITS = [
     '3 contratos analizados por mes',
@@ -35,12 +26,20 @@ export function RegisterPage() {
     const [fullName, setFullName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [industry, setIndustry] = useState('')
+    const [repeatPassword, setRepeatPassword] = useState('')
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
     const pwdScore = getPwdScore(password)
     const pwdValid = password.length >= 8
+
+    useEffect(() => {
+        if (repeatPassword.length > 0 && password !== repeatPassword) {
+            setError('Las contraseñas no coinciden');
+        } else {
+            setError('');
+        }
+    }, [password, repeatPassword]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -51,8 +50,7 @@ export function RegisterPage() {
             const res = await authApi.register({
                 email,
                 password,
-                fullName: fullName || undefined,
-                industry: industry || undefined,
+                fullName: fullName,
             })
             setAuth(res.user, res.accessToken)
             navigate('/dashboard')
@@ -63,6 +61,8 @@ export function RegisterPage() {
             )
         } finally {
             setLoading(false)
+            // Rastrear el evento
+            logEvent("Registro", "Envío", "Formulario de registro");
         }
     }
 
@@ -112,7 +112,7 @@ export function RegisterPage() {
             </div>
 
             {/* ── Panel derecho formulario ───────────────────────────────────── */}
-            <div className="flex items-center justify-center p-8 bg-paper">
+            <div className="flex items-center justify-center p-8 bg-ink">
                 <div className="w-full max-w-sm animate-fade-slide-up">
 
                     <div className="mb-8">
@@ -128,7 +128,7 @@ export function RegisterPage() {
                         <div className="flex flex-col gap-1.5">
                             <label htmlFor="fullName"
                                 className="text-xs font-semibold uppercase tracking-widest text-paper/80">
-                                Nombre completo
+                                Nombre completo <span className="text-danger text-xs">*</span>
                             </label>
                             <input
                                 id="fullName"
@@ -136,9 +136,10 @@ export function RegisterPage() {
                                 placeholder="Lucas Benavídez"
                                 value={fullName}
                                 onChange={(e) => setFullName(e.target.value)}
+                                required
                                 autoComplete="name"
                                 autoFocus
-                                className="w-full bg-white border border-border rounded-lg px-3.5 py-2.5
+                                className="w-full bg-[#1a1a1f] border border-border rounded-lg px-3.5 py-2.5
                            text-sm text-paper placeholder:text-paper/50 outline-none
                            focus:border-gold focus:ring-3 focus:ring-gold/12 transition-all"
                             />
@@ -158,7 +159,7 @@ export function RegisterPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 autoComplete="email"
-                                className="w-full bg-white border border-border rounded-lg px-3.5 py-2.5
+                                className="w-full bg-[#1a1a1f] border border-border rounded-lg px-3.5 py-2.5
                            text-sm text-paper placeholder:text-paper/50 outline-none
                            focus:border-gold focus:ring-3 focus:ring-gold/12 transition-all"
                             />
@@ -178,8 +179,8 @@ export function RegisterPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 autoComplete="new-password"
-                                className="w-full bg-white border border-border rounded-lg px-3.5 py-2.5
-                           text-sm text-paper placeholder:text-paper/80 outline-none
+                                className="w-full bg-[#1a1a1f] border border-border rounded-lg px-3.5 py-2.5
+                           text-sm text-paper placeholder:text-paper/50 outline-none
                            focus:border-gold focus:ring-3 focus:ring-gold/12 transition-all"
                             />
                             {/* Indicador de fortaleza */}
@@ -204,25 +205,30 @@ export function RegisterPage() {
                             )}
                         </div>
 
-                        {/* Industria */}
+                        {/* Repetir Contraseña */}
                         <div className="flex flex-col gap-1.5">
-                            <label htmlFor="industry"
+                            <label htmlFor="repeatPassword"
                                 className="text-xs font-semibold uppercase tracking-widest text-paper/80">
-                                Industria
+                                Repetir Contraseña
                             </label>
-                            <select
-                                id="industry"
-                                value={industry}
-                                onChange={(e) => setIndustry(e.target.value)}
-                                className="w-full bg-white border border-border rounded-lg px-3.5 py-2.5
-                           text-sm text-paper placeholder:text-paper/50 outline-none cursor-pointer appearance-none
+                            <input
+                                id="repeatPassword"
+                                type="password"
+                                placeholder="Repetir Contraseña"
+                                value={repeatPassword}
+                                onChange={(e) => setRepeatPassword(e.target.value)}
+                                required
+                                autoComplete="new-password"
+                                className="w-full bg-[#1a1a1f] border border-border rounded-lg px-3.5 py-2.5
+                           text-sm text-paper placeholder:text-paper/50 outline-none
                            focus:border-gold focus:ring-3 focus:ring-gold/12 transition-all"
-                            >
-                                {INDUSTRIES.map((opt) => (
-                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
-                                ))}
-                            </select>
+                            />
                         </div>
+
+                        {/* Industria */}
+                        {/* <RegisterIndustryDropdown value={industry}
+                            onChange={setIndustry}
+                            required /> */}
 
                         {/* Error */}
                         {error && (

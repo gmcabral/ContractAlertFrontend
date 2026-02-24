@@ -1,6 +1,8 @@
 import { useState, useRef, type ChangeEvent } from 'react'
 import { contractsApi } from '@/services/api'
 import type { Contract } from '@/types'
+import { ContractTypeDropdown } from '@/components/contracts/ContractTypeDropdown'
+import { logEvent } from '@/utils/analytics'
 
 interface UploadModalProps {
     onClose: () => void
@@ -53,6 +55,8 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
             }
         } finally {
             setLoading(false)
+            // Rastrear el evento
+            logEvent("Contrato", "Subida", "Contrato subido");
         }
     }
 
@@ -149,25 +153,11 @@ export function UploadModal({ onClose, onSuccess }: UploadModalProps) {
                     </div>
 
                     {/* Tipo */}
-                    <div className="flex flex-col gap-1.5">
-                        <label className="text-xs font-semibold uppercase tracking-widest text-paper/50">
-                            Tipo de contrato
-                        </label>
-                        <select
-                            value={contractType}
-                            onChange={(e) => setContractType(e.target.value)}
-                            className="bg-paper/5 border border-paper/15 rounded-lg px-3.5 py-2.5
-                                       text-sm text-paper outline-none cursor-pointer appearance-none
-                                       focus:border-gold focus:ring-2 focus:ring-gold/15 transition-all"
-                        >
-                            <option value="">Seleccioná un tipo (opcional)</option>
-                            <option value="servicios">Prestación de servicios</option>
-                            <option value="obra">Contrato de obra</option>
-                            <option value="confidencialidad">NDA / Confidencialidad</option>
-                            <option value="agencia">Agencia / Representación</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                    </div>
+                    <ContractTypeDropdown
+                        value={contractType}
+                        onChange={setContractType}
+                        required
+                    />
 
                     {error && (
                         <div className="flex items-center gap-2 bg-red-500/10 border border-red-500/20

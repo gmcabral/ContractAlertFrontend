@@ -2,7 +2,8 @@ import axios from 'axios'
 import type { AuthResponse, LoginRequest, RegisterRequest, Contract, UploadContractRequest } from '@/types'
 
 const http = axios.create({
-    baseURL: import.meta.env.VITE_API_URL ?? '',
+    //baseURL: import.meta.env.VITE_API_URL ?? '',
+    baseURL: '',
     headers: { 'Content-Type': 'application/json' },
 })
 
@@ -68,6 +69,27 @@ export const contractsApi = {
 
     planUsage: async () =>
         (await http.get('/api/contracts/usage')).data,
+
+    analyze: async (id: string): Promise<void> =>
+        void (await http.get(`/api/contracts/${id}/analyze`)),
+}
+
+// ── Subscriptions ──────────────────────────────────────────────────────────────
+export const subscriptionsApi = {
+    create: async (planType: string) => {
+        const { data } = await http.post('/api/subscriptions/create', { planType })
+        return data
+    },
+
+    cancel: async (subscriptionId: string) => {
+        const { data } = await http.post(`/api/subscriptions/${subscriptionId}/cancel`)
+        return data
+    },
+
+    getStatus: async (subscriptionId: string) => {
+        const { data } = await http.get(`/api/subscriptions/${subscriptionId}`)
+        return data
+    },
 }
 
 export default http

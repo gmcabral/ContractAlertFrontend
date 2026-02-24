@@ -1,4 +1,5 @@
 import { useAuthStore } from '@/store/authStore'
+import { UpgradePlanCard } from '@/components/UpgradePlanCard'
 
 export function DashboardPage() {
     const user = useAuthStore((s) => s.user)
@@ -14,12 +15,10 @@ export function DashboardPage() {
                     <span className="font-semibold text-paper">{user?.tier?.toUpperCase()}</span>
                 </p>
             </div>
-
-            <div className="flex flex-col items-center justify-center gap-4
-                      p-20 border-2 border-dashed border-border rounded-xl text-paper/80">
-                <span className="text-5xl">📋</span>
-                <p className="text-sm">Dashboard en construcción — próximamente aquí verás tus contratos</p>
+            <div className="mb-10">
+                <UpgradePlanCard />
             </div>
+
         </div>
     )
 }

@@ -16,7 +16,7 @@ export default defineConfig({
     proxy: {
       // En dev: /api → Azure Functions local (puerto 7071 docker, puerto 7230 host)
       '/api': {
-        target: 'http://localhost:7071',
+        target: 'http://localhost:7230',
         changeOrigin: true,
       }
     }

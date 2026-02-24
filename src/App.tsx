@@ -1,6 +1,6 @@
-// src/App.tsx
+
 import { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
 import { Header } from '@/components/Header'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { LoginPage } from '@/pages/LoginPage'
@@ -9,6 +9,17 @@ import { DashboardPage } from '@/pages/DashboardPage'
 import { useAuthStore } from '@/store/authStore'
 import { ContractsPage } from '@/pages/ContractsPage'
 import ContractDetailPage from '@/pages/ContractDetailPage'
+import PricingPage from '@/pages/PricingPage'
+
+function Analytics() {
+  const location = useLocation();
+  useEffect(() => {
+    gtag('config', 'G-RW20DY4TPP', {
+      page_path: location.pathname,
+    });
+  }, [location]);
+  return null;
+}
 
 export default function App() {
   const initFromStorage = useAuthStore((s) => s.initFromStorage)
@@ -17,6 +28,7 @@ export default function App() {
 
   return (
     <BrowserRouter>
+      <Analytics />
       <div className="min-h-dvh flex flex-col bg-ink font-body">
         <Header />
 
@@ -35,6 +47,7 @@ export default function App() {
             <Route path="/contracts/:id" element={
               <ProtectedRoute><ContractDetailPage /></ProtectedRoute>
             } />
+            <Route path="/pricing" element={<ProtectedRoute><PricingPage /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </main>

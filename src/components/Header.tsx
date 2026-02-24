@@ -41,7 +41,7 @@ export function Header() {
                                    text-paper hover:opacity-80 transition-opacity"
                     >
                         <span className="text-gold text-xl">⚖</span>
-                        <span>Contract<span className="text-gold">Alert</span></span>
+                        <span>Amala<span className="text-gold">Alert</span></span>
                     </Link>
 
                     {/* Nav desktop — oculta en móvil */}
@@ -50,6 +50,7 @@ export function Header() {
                             <>
                                 <Link to="/dashboard" className={navLink('/dashboard')}>Dashboard</Link>
                                 <Link to="/contracts" className={navLink('/contracts')}>Contratos</Link>
+                                <Link to="/pricing" className={navLink('/pricing')}>Planes</Link>
 
                                 <div className="w-px h-5 bg-paper/15 mx-2" />
 

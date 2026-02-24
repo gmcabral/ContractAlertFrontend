@@ -5,6 +5,7 @@ import { contractsApi } from '@/services/api.ts'
 import ContractDetailHeader from '@/components/contracts/ContractDetailHeader'
 import ContractInfoGrid from '@/components/contracts/ContractInfoGrid'
 import ContractRiskCard from '@/components/contracts/ContractRiskCard'
+import ContractAIResponse from '@/components/contracts/ContractAIResponse'
 
 export default function ContractDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -36,11 +37,8 @@ export default function ContractDetailPage() {
         if (!contract) return
         setAnalyzing(true)
         try {
-            const res = await fetch(`/api/contracts/${contract.id}/analyze`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-            })
-            if (!res.ok) throw new Error('Error al iniciar el análisis')
+            const data = await contractsApi.analyze(contract.id)
+            console.log(data)
             setContract(prev => prev ? { ...prev, status: 'analyzing' } : prev)
         } catch (err: any) {
             setError(err.message)
@@ -103,6 +101,38 @@ export default function ContractDetailPage() {
                 {/* Risk score */}
                 {contract.status === 'completed' && (
                     <ContractRiskCard contract={contract} />
+                )}
+
+                {/* Summary */}
+                {contract.status === 'completed' && (
+                    <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
+                        <p className="text-white/40 text-xs uppercase tracking-wider">Resumen</p>
+                        <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
+                            {contract.summary}
+                        </p>
+                    </div>
+                )}
+
+                {/* AI Response */}
+                {contract.status === 'completed' && contract.aiResponse && (
+                    <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
+                        <p className="text-white/40 text-xs uppercase tracking-wider">Análisis de IA</p>
+                        {contract.aiResponse.clauses.map((clause) => (
+                            <ContractAIResponse key={clause.clauseType} clause={clause} />
+                        ))}
+                        <p className="text-white/40 text-xs uppercase tracking-wider">Alertas de Cumplimiento o Red Flags</p>
+                        {contract.aiResponse.redFlags.map((redFlag, index) => (
+                            <div key={index}>
+                                <p className="text-white/80 text-sm tracking-wider"><span>{index + 1} - </span>{redFlag}</p>
+                            </div>
+                        ))}
+                        <p className="text-white/40 text-xs uppercase tracking-wider">Próximos pasos</p>
+                        {contract.aiResponse.nextSteps.map((nextStep, index) => (
+                            <div key={index}>
+                                <p className="text-white/80 text-sm tracking-wider"><span>{index + 1}º - </span>{nextStep}</p>
+                            </div>
+                        ))}
+                    </div>
                 )}
 
                 {/* Texto del contrato */}

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { authApi } from '@/services/api'
 import { useAuthStore } from '@/store/authStore'
+import { logEvent } from '@/utils/analytics'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -46,6 +47,8 @@ export function LoginPage() {
       setError(displayMsg)
     } finally {
       setLoading(false)
+      // Rastrear el evento
+      logEvent("Login", "Envío", "Formulario de login");
     }
   }
 

@@ -30,8 +30,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
     email: string
     password: string
-    fullName?: string
-    industry?: string
+    fullName: string
 }
 
 // ── Contracts ────────────────────────────────────────────────────────────────
@@ -45,9 +44,32 @@ export interface Contract {
     clientName: string | null
     riskScore: number | null
     overallAssessment: RiskAssessment | null
+    summary: string | null
     createdAt: string
     updatedAt: string
+    aiResponse: ContractAnalysis | null
 }
+
+export interface ContractAnalysis {
+    clauses: Clause[];
+    summary: string;
+    redFlags: string[];
+    nextSteps: string[];
+    riskScore: number;
+    overallAssessment: RiskLevel;
+}
+
+export interface Clause {
+    riskLevel: RiskLevel;
+    clauseText: string;
+    clauseType: string;
+    legalArticle: string;
+    alternativeClause: string;
+    industryBenchmark: string;
+    negotiationSuggestion: string;
+}
+
+export type RiskLevel = "critico" | "alto" | "medio" | "bajo";
 
 export interface PlanUsage {
     tier: SubscriptionTier

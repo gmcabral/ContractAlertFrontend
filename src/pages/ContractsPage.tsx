@@ -8,6 +8,7 @@ import { ContractCard } from '@/components/contracts/ContractCard'
 import { UploadModal } from '@/components/contracts/UploadModal'
 import { PlanMonitor } from '@/components/contracts/PlanMonitor'
 import { EmptyState } from '@/components/contracts/EmptyState'
+import { UpgradePlanCard } from '@/components/UpgradePlanCard'
 
 export function ContractsPage() {
     const navigate = useNavigate()
@@ -30,6 +31,7 @@ export function ContractsPage() {
     const loadContracts = async () => {
         try {
             const data = await contractsApi.list()
+            console.log(data)
             setContracts(data)
         } catch (err) {
             console.error('Error cargando contratos:', err)
