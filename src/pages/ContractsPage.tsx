@@ -8,7 +8,6 @@ import { ContractCard } from '@/components/contracts/ContractCard'
 import { UploadModal } from '@/components/contracts/UploadModal'
 import { PlanMonitor } from '@/components/contracts/PlanMonitor'
 import { EmptyState } from '@/components/contracts/EmptyState'
-import { UpgradePlanCard } from '@/components/UpgradePlanCard'
 
 export function ContractsPage() {
     const navigate = useNavigate()

@@ -6,6 +6,8 @@ import ContractDetailHeader from '@/components/contracts/ContractDetailHeader'
 import ContractInfoGrid from '@/components/contracts/ContractInfoGrid'
 import ContractRiskCard from '@/components/contracts/ContractRiskCard'
 import ContractAIResponse from '@/components/contracts/ContractAIResponse'
+import { AnalysisQueueProgress } from '@/components/contracts/AnalysisQueueProgress'
+
 
 export default function ContractDetailPage() {
     const { id } = useParams<{ id: string }>()
@@ -15,11 +17,16 @@ export default function ContractDetailPage() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState<string | null>(null)
     const [analyzing, setAnalyzing] = useState(false)
+    const [queueId, setQueueId] = useState<string | null>(null)
 
     const loadContract = async (id: string) => {
         try {
             const data = await contractsApi.getById(id)
             setContract(data)
+
+            if (data.analysisQueueId && data.analysisStatus === 'processing') {
+                setQueueId(data.analysisQueueId)
+            }
         } catch (err) {
             console.error('Error cargando contratos:', err)
         } finally {
@@ -35,13 +42,20 @@ export default function ContractDetailPage() {
 
     async function handleAnalyze() {
         if (!contract) return
+
+        if (contract?.analysisStatus === 'processing') {
+                alert('Ya hay un análisis en proceso para este contrato')
+                return
+        }
+
         setAnalyzing(true)
         try {
-            const data = await contractsApi.analyze(contract.id)
-            console.log(data)
+            const data = await contractsApi.analyze(id!)
+            setQueueId(data.queueId)
             setContract(prev => prev ? { ...prev, status: 'analyzing' } : prev)
-        } catch (err: any) {
-            setError(err.message)
+        } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : 'Error desconocido'
+            setError(message)
         } finally {
             setAnalyzing(false)
         }
@@ -78,76 +92,90 @@ export default function ContractDetailPage() {
 
     // ── Page ─────────────────────────────────────────────────────────────────
     return (
-        <div className="min-h-screen bg-[#0e0e12] text-white">
-            <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
+        <>
+            {/* Modal de progreso de la cola */}
+            {queueId && (
+                <AnalysisQueueProgress 
+                    queueId={queueId}
+                    onComplete={() => {
+                        setQueueId(null)
+                        // Recargar el contrato para mostrar los resultados
+                        window.location.reload()
+                    }}
+                />
+            )}
 
-                {/* Back */}
-                <button
-                    onClick={() => navigate('/contracts')}
-                    className="flex items-center gap-2 text-white/40 hover:text-white/80 text-sm transition-colors group"
-                >
-                    <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                    </svg>
-                    Volver a contratos
-                </button>
+            <div className="min-h-screen bg-[#0e0e12] text-white">
+                <div className="max-w-4xl mx-auto px-4 py-10 space-y-8">
 
-                {/* Header */}
-                <ContractDetailHeader contract={contract} handleAnalyze={handleAnalyze} analyzing={analyzing} />
+                    {/* Back */}
+                    <button
+                        onClick={() => navigate('/contracts')}
+                        className="flex items-center gap-2 text-white/40 hover:text-white/80 text-sm transition-colors group"
+                    >
+                        <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Volver a contratos
+                    </button>
 
-                {/* Info básica */}
-                <ContractInfoGrid contract={contract} />
+                    {/* Header */}
+                    <ContractDetailHeader contract={contract} handleAnalyze={handleAnalyze} analyzing={analyzing} />
 
-                {/* Risk score */}
-                {contract.status === 'completed' && (
-                    <ContractRiskCard contract={contract} />
-                )}
+                    {/* Info básica */}
+                    <ContractInfoGrid contract={contract} />
 
-                {/* Summary */}
-                {contract.status === 'completed' && (
-                    <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Resumen</p>
-                        <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
-                            {contract.summary}
-                        </p>
-                    </div>
-                )}
+                    {/* Risk score */}
+                    {contract.status === 'completed' && (
+                        <ContractRiskCard contract={contract} />
+                    )}
 
-                {/* AI Response */}
-                {contract.status === 'completed' && contract.aiResponse && (
-                    <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Análisis de IA</p>
-                        {contract.aiResponse.clauses.map((clause) => (
-                            <ContractAIResponse key={clause.clauseType} clause={clause} />
-                        ))}
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Alertas de Cumplimiento o Red Flags</p>
-                        {contract.aiResponse.redFlags.map((redFlag, index) => (
-                            <div key={index}>
-                                <p className="text-white/80 text-sm tracking-wider"><span>{index + 1} - </span>{redFlag}</p>
-                            </div>
-                        ))}
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Próximos pasos</p>
-                        {contract.aiResponse.nextSteps.map((nextStep, index) => (
-                            <div key={index}>
-                                <p className="text-white/80 text-sm tracking-wider"><span>{index + 1}º - </span>{nextStep}</p>
-                            </div>
-                        ))}
-                    </div>
-                )}
-
-                {/* Texto del contrato */}
-                {contract.contractText && (
-                    <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
-                        <p className="text-white/40 text-xs uppercase tracking-wider">Texto del contrato</p>
-                        <div className="max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                    {/* Summary */}
+                    {contract.status === 'completed' && (
+                        <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
+                            <p className="text-white/40 text-xs uppercase tracking-wider">Resumen</p>
                             <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
-                                {contract.contractText}
+                                {contract.summary}
                             </p>
                         </div>
-                    </div>
-                )}
+                    )}
 
+                    {/* AI Response */}
+                    {contract.status === 'completed' && contract.aiResponse && (
+                        <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
+                            <p className="text-white/40 text-xs uppercase tracking-wider">Análisis de IA</p>
+                            {contract.aiResponse.clauses.map((clause) => (
+                                <ContractAIResponse key={clause.clauseType} clause={clause} />
+                            ))}
+                            <p className="text-white/40 text-xs uppercase tracking-wider">Alertas de Cumplimiento o Red Flags</p>
+                            {contract.aiResponse.redFlags.map((redFlag, index) => (
+                                <div key={index}>
+                                    <p className="text-white/80 text-sm tracking-wider"><span>{index + 1} - </span>{redFlag}</p>
+                                </div>
+                            ))}
+                            <p className="text-white/40 text-xs uppercase tracking-wider">Próximos pasos</p>
+                            {contract.aiResponse.nextSteps.map((nextStep, index) => (
+                                <div key={index}>
+                                    <p className="text-white/80 text-sm tracking-wider"><span>{index + 1}º - </span>{nextStep}</p>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    {/* Texto del contrato */}
+                    {contract.contractText && (
+                        <div className="bg-[#16161a] border border-white/8 rounded-xl p-6 space-y-3">
+                            <p className="text-white/40 text-xs uppercase tracking-wider">Texto del contrato</p>
+                            <div className="max-h-96 overflow-y-auto pr-2 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-white/10">
+                                <p className="text-white/70 text-sm leading-relaxed whitespace-pre-wrap">
+                                    {contract.contractText}
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
             </div>
-        </div>
+        </>
     )
 }

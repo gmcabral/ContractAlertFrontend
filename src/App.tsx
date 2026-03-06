@@ -10,6 +10,8 @@ import { useAuthStore } from '@/store/authStore'
 import { ContractsPage } from '@/pages/ContractsPage'
 import ContractDetailPage from '@/pages/ContractDetailPage'
 import PricingPage from '@/pages/PricingPage'
+import DemosIndexPage from '@/pages/DemosIndexPage'
+import PublicDemoDetailPage from './pages/PublicDemoDetailPage'
 
 function Analytics() {
   const location = useLocation();
@@ -38,6 +40,10 @@ export default function App() {
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/ejemplos" element={<DemosIndexPage />} />
+            <Route path="/ejemplos/:slug" element={<PublicDemoDetailPage />} />
+
+            {/* Rutas protegidas */}
             <Route path="/dashboard" element={
               <ProtectedRoute><DashboardPage /></ProtectedRoute>
             } />

@@ -70,8 +70,14 @@ export const contractsApi = {
     planUsage: async () =>
         (await http.get('/api/contracts/usage')).data,
 
-    analyze: async (id: string): Promise<void> =>
-        void (await http.get(`/api/contracts/${id}/analyze`)),
+    analyze: async (id: string) => {
+        const { data } = await http.post(`/api/contracts/${id}/analyze`)
+        return data
+    },
+
+    getQueueStatus: async(queueId: string) => 
+        (await http.get(`/api/contracts/queue/${queueId}`)).data,
+    
 }
 
 // ── Subscriptions ──────────────────────────────────────────────────────────────

@@ -48,6 +48,8 @@ export interface Contract {
     createdAt: string
     updatedAt: string
     aiResponse: ContractAnalysis | null
+    analysisQueueId: string | null
+    analysisStatus: string | null
 }
 
 export interface ContractAnalysis {
@@ -84,4 +86,15 @@ export interface UploadContractRequest {
     title: string
     clientName?: string
     contractType?: string
+}
+
+export interface QueueStatus {
+    queueId: string
+    status: 'queued' | 'processing' | 'completed' | 'failed'
+    position: number
+    estimatedWaitMinutes: number
+    enqueuedAt: string
+    startedAt?: string
+    completedAt?: string
+    errorMessage?: string
 }

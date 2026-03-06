@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import axios from 'axios'
 import type { User } from '@/types'
 
 interface AuthState {
@@ -10,9 +11,10 @@ interface AuthState {
     setAuth: (user: User, token: string) => void
     logout: () => void
     initFromStorage: () => void
+    refreshUser: () => Promise<void>
 }
 
-export const useAuthStore = create<AuthState>((set) => ({
+export const useAuthStore = create<AuthState>((set, get) => ({
     user: null,
     token: null,
     isAuthenticated: false,
@@ -41,7 +43,27 @@ export const useAuthStore = create<AuthState>((set) => ({
                 localStorage.removeItem('user')
                 set({ hydrated: true })
             }
+        } else {
+            set({ hydrated: true })
         }
-        set({ hydrated: true })
+    },
+
+    refreshUser: async () => {
+        const token = get().token
+        if (!token) return
+
+        try {
+            const { data } = await axios.get<User>('/api/auth/me', {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+
+            // Actualizar localStorage y state
+            localStorage.setItem('user', JSON.stringify(data))
+            set({ user: data })
+        } catch (error) {
+            console.error('Error refreshing user:', error)
+            // Si falla el refresh (ej: token expirado), hacer logout
+            get().logout()
+        }
     },
 }))

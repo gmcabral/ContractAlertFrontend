@@ -20,7 +20,7 @@ export default function ContractDetailHeader({ contract, handleAnalyze, analyzin
             {contract.status === 'pending' && (
                 <button
                     onClick={handleAnalyze}
-                    disabled={analyzing}
+                    disabled={analyzing || contract?.analysisStatus === 'processing'}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-lg bg-yellow-400 hover:bg-yellow-300
                                        text-black font-medium text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed
                                        shrink-0"
