@@ -4,13 +4,13 @@ import { Helmet } from 'react-helmet-async'
 import axios from 'axios'
 
 interface DetectedClause {
-    clauseType: string
-    clauseText: string
-    riskLevel: string
-    legalArticle: string
-    industryBenchmark: string
-    negotiationSuggestion: string
-    alternativeClause: string
+    clause_type: string
+    clause_text: string
+    risk_level: string
+    legal_article: string
+    industry_benchmark: string
+    negotiation_suggestion: string
+    alternative_clause: string
 }
 
 interface PublicDemo {
@@ -224,36 +224,36 @@ export default function PublicDemoDetailPage() {
                             {clauses.map((clause, i) => (
                                 <div key={i} className="bg-[#1a1a1f] border border-white/10 rounded-2xl p-6">
                                     <div className="flex items-start justify-between mb-4">
-                                        <h3 className="font-bold text-lg">{clause.clauseType}</h3>
-                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getClauseRiskColor(clause.riskLevel)}`}>
-                                            {clause.riskLevel.toUpperCase()}
+                                        <h3 className="font-bold text-lg">{clause.clause_type}</h3>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-bold border ${getClauseRiskColor(clause.risk_level)}`}>
+                                            {clause.risk_level.toUpperCase()}
                                         </span>
                                     </div>
 
                                     <div className="space-y-4 text-sm">
                                         <div>
                                             <div className="text-white/60 mb-1">Texto de la cláusula:</div>
-                                            <div className="text-white/90 italic">"{clause.clauseText}"</div>
+                                            <div className="text-white/90 italic">"{clause.clause_text}"</div>
                                         </div>
 
                                         <div>
                                             <div className="text-white/60 mb-1">📜 Marco Legal:</div>
-                                            <div className="text-white/90">{clause.legalArticle}</div>
+                                            <div className="text-white/90">{clause.legal_article}</div>
                                         </div>
 
                                         <div>
                                             <div className="text-white/60 mb-1">📊 Estándar de la Industria:</div>
-                                            <div className="text-white/90">{clause.industryBenchmark}</div>
+                                            <div className="text-white/90">{clause.industry_benchmark}</div>
                                         </div>
 
                                         <div>
                                             <div className="text-white/60 mb-1">💡 Sugerencia de Negociación:</div>
-                                            <div className="text-white/90">{clause.negotiationSuggestion}</div>
+                                            <div className="text-white/90">{clause.negotiation_suggestion}</div>
                                         </div>
 
                                         <div className="bg-green-400/5 border border-green-400/20 rounded-lg p-4">
                                             <div className="text-green-400 mb-1 text-xs font-bold">✓ CLÁUSULA ALTERNATIVA SUGERIDA:</div>
-                                            <div className="text-white/90">{clause.alternativeClause}</div>
+                                            <div className="text-white/90">{clause.alternative_clause}</div>
                                         </div>
                                     </div>
                                 </div>
